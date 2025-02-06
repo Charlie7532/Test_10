@@ -29,7 +29,7 @@ export const siteConfig = {
       id: "Users",
       label: "Users",
       icon: User,
-      path: "/explore",
+      path: "/",
       section: "main",
     },
 

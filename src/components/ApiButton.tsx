@@ -13,9 +13,8 @@ export default function ApiButton({ onClick }: ApiButtonProps) {
     const [apiUrl, setApiUrl] = useState("")
 
     useEffect(() => {
-        // Ensure this only runs on the client side
         if (typeof window !== "undefined") {
-            setApiUrl(`${window.location.origin}/api/users`)
+            setApiUrl(`${window.location.origin}/api/users/load`)
         }
     }, [])
 
@@ -45,7 +44,6 @@ export default function ApiButton({ onClick }: ApiButtonProps) {
             setMessage("DB Populated, if the elements dont load inmediatlly reload the page.")
             console.log("API Response:", data)
 
-            // Call the provided onClick function if it exists
             if (onClick) {
                 onClick()
             }
