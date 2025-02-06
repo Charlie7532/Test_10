@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Search } from "lucide-react"
 import UserCard from "@/components/UserCard"
 import { filterUsers } from "@/utils/search"
-import { MagnetIcon } from "lucide-react"
-import SearchIcon from '@mui/icons-material/Search';
 
 interface User {
   name: {
@@ -20,28 +19,50 @@ interface User {
     city: string
     country: string
   }
+  login: {
+    uuid: string
+  }
 }
 
 export default function Home() {
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetch("https://randomuser.me/api?results=6")
-      const data = await response.json()
-      setUsers(data.results.map((user: any) => ({
-        name: user.name,
-        email: user.email,
-        picture: user.picture,
-        location: user.location
-      })))
+      try {
+        setIsLoading(true)
+        const response = await fetch("https://randomuser.me/api?results=6")
+        if (!response.ok) {
+          throw new Error("Failed to fetch users")
+        }
+        const data = await response.json()
+        if (data.results && Array.isArray(data.results)) {
+          setUsers(data.results)
+        } else {
+          throw new Error("Invalid data format")
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred")
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     fetchUsers()
   }, [])
 
   const filteredUsers = filterUsers(users, searchTerm)
+
+  if (isLoading) {
+    return <div className="text-center mt-8">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="text-center mt-8 text-red-500">Error: {error}</div>
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -54,14 +75,18 @@ export default function Home() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredUsers.map((user) => (
-          <UserCard key={user.email} user={user} />
-        ))}
-      </div>
+      {filteredUsers.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredUsers.map((user: any) => (
+            <UserCard key={user.login.uuid} user={user} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center mt-8">No users found</div>
+      )}
     </div>
   )
 }
