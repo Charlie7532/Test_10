@@ -32,27 +32,27 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true)
-        const response = await fetch("/api/users?random=20")
-        if (!response.ok) {
-          throw new Error("Failed to fetch users")
-        }
-        const data = await response.json()
-        if (data.results && Array.isArray(data.results)) {
-          setUsers(data.results)
-        } else {
-          throw new Error("Invalid data format")
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred")
-      } finally {
-        setIsLoading(false)
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch("/api/users?random=20")
+      if (!response.ok) {
+        throw new Error("Failed to fetch users")
       }
+      const data = await response.json()
+      if (data.results && Array.isArray(data.results)) {
+        setUsers(data.results)
+      } else {
+        throw new Error("Invalid data format")
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchUsers()
   }, [])
 
@@ -68,7 +68,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <ApiButton onClick={() => window.location.reload()} />
+      <ApiButton onClick={fetchUsers} />
       <div className="mb-8">
         <div className="relative">
           <input

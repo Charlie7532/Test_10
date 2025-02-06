@@ -60,7 +60,7 @@ export default function ApiButton({ onClick }: ApiButtonProps) {
     return (
         <div className="flex flex-col items-center gap-4">
             <Button onClick={handleClick} disabled={isLoading || !apiUrl}>
-                {isLoading ? "Loading..." : "Make API Call"}
+                {isLoading ? "Loading..." : "Populate DB"}
             </Button>
             {message && <p className="text-sm text-gray-600">{message}</p>}
             <p className="text-xs text-gray-400">API URL: {apiUrl || "Not set yet"}</p>
