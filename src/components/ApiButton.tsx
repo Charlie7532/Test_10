@@ -42,7 +42,7 @@ export default function ApiButton({ onClick }: ApiButtonProps) {
             }
 
             const data = await response.json()
-            setMessage("API call successful!")
+            setMessage("DB Populated, if the elements dont load inmediatlly reload the page.")
             console.log("API Response:", data)
 
             // Call the provided onClick function if it exists

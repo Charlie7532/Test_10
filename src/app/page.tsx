@@ -68,7 +68,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <ApiButton />
+      <ApiButton onClick={() => window.location.reload()} />
       <div className="mb-8">
         <div className="relative">
           <input
