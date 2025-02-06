@@ -1,39 +1,46 @@
-/* eslint-disable no-console */
+import { type NextRequest, NextResponse } from "next/server"
+import { MongoClient, ObjectId } from 'mongodb';
 
-import { NextResponse } from 'next/server'
 
-export async function POST(request: Request) {
-  const apiKey = process.env.MONDAY_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key is missing' }, { status: 500 })
-  }
-
-  await dbConnect()
-
-  const { users } = await request.json()
-
-  const API_URL = `https://randomuser.me/api?results=${results}`
-
+export async function POST(request: NextRequest) {
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': apiKey,
-      },
-      body: JSON.stringify({ query }),
-    })
+    // Parse the JSON body
+    const body = await request.json()
+    const { users } = body
 
-    const result = await response.json()
-
-    if (result.errors) {
-      console.error(JSON.stringify(result, null, 2))
-      return NextResponse.json({ error: 'Error submitting feedback to Monday.com' }, { status: 500 })
+    // Validate the input
+    if (!users || typeof users !== "number" || users < 1) {
+      return NextResponse.json({ error: 'Invalid input. "users" must be a positive number.' }, { status: 400 })
     }
 
-    return NextResponse.json({ success: true, id: result.data.create_item.id })
+    // Fetch random users from the API
+    const API_URL = `https://randomuser.me/api?results=${users}`
+    const response = await fetch(API_URL)
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch users from Random User API")
+    }
+
+    const data = await response.json()
+    const fetchedUsers = data.results
+
+    // Connect to MongoDB
+    await dbConnect()
+
+    // Store users in MongoDB
+    const storedUsers = await User.insertMany(fetchedUsers)
+
+    // Return success message
+    return NextResponse.json(
+      {
+        message: `Successfully stored ${storedUsers.length} users in the database.`,
+        count: storedUsers.length,
+      },
+      { status: 201 },
+    )
   } catch (error) {
-    console.error('Failed to submit feedback:', error)
-    return NextResponse.json({ error: 'Failed to submit feedback' }, { status: 500 })
+    console.error("Error processing request:", error)
+    return NextResponse.json({ error: "Failed to process request" }, { status: 500 })
   }
 }
+
