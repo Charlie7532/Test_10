@@ -1,4 +1,4 @@
-import { BookmarkIcon, HomeIcon, SearchIcon } from "lucide-react"
+import { BookmarkIcon, HomeIcon, SearchIcon, User } from "lucide-react"
 
 import { MenuItem } from "@/types";
 
@@ -26,19 +26,13 @@ export const siteConfig = {
       section: "main",
     },
     {
-      id: "explore",
-      label: "Explorar",
-      icon: SearchIcon,
+      id: "Users",
+      label: "Users",
+      icon: User,
       path: "/explore",
       section: "main",
     },
-    {
-      id: "saved",
-      label: "Guardado",
-      icon: BookmarkIcon,
-      path: "/saved",
-      section: "main",
-    },
+
   ] as MenuItem[],
   links: {
     login: "/api/auth/login",

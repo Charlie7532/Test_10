@@ -1,8 +1,4 @@
-import { Link } from "@heroui/link";
-import { button as buttonStyles } from "@heroui/theme";
-import { DollarSign, ShoppingCart } from "lucide-react";
 
-import { title, subtitle } from "@/components/primitives";
 
 export default function Home() {
   // const t = useTranslations('HomePage');
