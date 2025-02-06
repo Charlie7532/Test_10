@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import { Mail, MapPin, Phone, Calendar } from "lucide-react"
 import Link from "next/link"
+import { Mail, MapPin, Phone, Calendar, ArrowLeft } from "lucide-react"
+import { Card, CardBody, CardHeader, Avatar, Button, Spinner, Divider } from "@heroui/react"
 
 interface User {
     name: {
@@ -33,9 +34,9 @@ interface User {
     }
 }
 
-export default function UserPage() {
+export default function UserProfile() {
     const params = useParams()
-    const email = params.email as string // Ensure email is treated as a string
+    const email = params.email as string
 
     const [user, setUser] = useState<User | null>(null)
     const [isLoading, setIsLoading] = useState(true)
@@ -55,7 +56,7 @@ export default function UserPage() {
                     throw new Error("User not found")
                 }
 
-                setUser(data.results[0]) // Extract the user object
+                setUser(data.results[0])
             } catch (err) {
                 setError(err instanceof Error ? err.message : "An error occurred")
             } finally {
@@ -69,46 +70,60 @@ export default function UserPage() {
     }, [email])
 
     if (isLoading) {
-        return <div className="text-center mt-8">Loading...</div>
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Spinner size="lg" />
+            </div>
+        )
     }
 
     if (error || !user) {
-        return <div className="text-center mt-8 text-red-500">Error: {error || "User not found"}</div>
+        return (
+            <div className="flex justify-center items-center h-screen text-danger">Error: {error || "User not found"}</div>
+        )
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <Link href="/" className="text-blue-500 hover:underline mb-4 inline-block">
-                &larr; Back to all users
-            </Link>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto">
-                <img
-                    src={user.picture.large || "/placeholder.svg"}
-                    alt={`${user.name.first} ${user.name.last}`}
-                    className="w-full h-64 object-cover"
-                />
-                <div className="p-6">
-                    <h1 className="text-3xl font-bold mb-4">{`${user.name.title} ${user.name.first} ${user.name.last}`}</h1>
-                    <div className="space-y-3">
-                        <div className="flex items-center">
-                            <Mail className="h-5 w-5 text-gray-500 mr-2" />
-                            <span>{user.email}</span>
+        <div className="min-h-screen bg-background p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto">
+                <Link href="/" passHref>
+                    <Button variant="light" startContent={<ArrowLeft className="h-4 w-4" />} className="mb-6">
+                        Back to all users
+                    </Button>
+                </Link>
+                <Card className="w-full">
+                    <CardHeader className="flex flex-col items-center pb-6 pt-6 px-4">
+                        <Avatar
+                            src={user.picture.large || "/placeholder.svg"}
+                            alt={`${user.name.first} ${user.name.last}`}
+                            className="w-32 h-32 text-large"
+                        />
+                        <h1 className="text-2xl font-bold mt-4">{`${user.name.title} ${user.name.first} ${user.name.last}`}</h1>
+                    </CardHeader>
+                    <Divider />
+                    <CardBody className="px-6 py-4">
+                        <div className="space-y-4">
+                            <div className="flex items-center">
+                                <Mail className="h-5 w-5 text-primary mr-3" />
+                                <span>{user.email}</span>
+                            </div>
+                            <div className="flex items-start">
+                                <MapPin className="h-5 w-5 text-success mr-3 mt-1 flex-shrink-0" />
+                                <span>{`${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state}, ${user.location.country}, ${user.location.postcode}`}</span>
+                            </div>
+                            <div className="flex items-center">
+                                <Phone className="h-5 w-5 text-secondary mr-3" />
+                                <span>{`Phone: ${user.phone}, Cell: ${user.cell}`}</span>
+                            </div>
+                            <div className="flex items-center">
+                                <Calendar className="h-5 w-5 text-warning mr-3" />
+                                <span>{`Date of Birth: ${new Date(user.dob.date).toLocaleDateString()} (Age: ${user.dob.age})`}</span>
+                            </div>
                         </div>
-                        <div className="flex items-center">
-                            <MapPin className="h-5 w-5 text-gray-500 mr-2" />
-                            <span>{`${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state}, ${user.location.country}, ${user.location.postcode}`}</span>
-                        </div>
-                        <div className="flex items-center">
-                            <Phone className="h-5 w-5 text-gray-500 mr-2" />
-                            <span>{`Phone: ${user.phone}, Cell: ${user.cell}`}</span>
-                        </div>
-                        <div className="flex items-center">
-                            <Calendar className="h-5 w-5 text-gray-500 mr-2" />
-                            <span>{`Date of Birth: ${new Date(user.dob.date).toLocaleDateString()} (Age: ${user.dob.age})`}</span>
-                        </div>
-                    </div>
-                </div>
+                    </CardBody>
+                </Card>
             </div>
         </div>
     )
 }
+
