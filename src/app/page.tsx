@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Search } from "lucide-react"
+
 import UserCard from "@/components/UserCard"
 import { filterUsers } from "@/utils/search"
 

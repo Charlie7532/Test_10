@@ -1,4 +1,4 @@
-import { BookmarkIcon, HomeIcon, SearchIcon, User } from "lucide-react"
+import { HomeIcon, User } from "lucide-react"
 
 import { MenuItem } from "@/types";
 

@@ -1,9 +1,5 @@
-import { Link } from "@heroui/link";
-import { button as buttonStyles } from "@heroui/theme";
 import { useTranslations } from 'next-intl';
 
-import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
 
 
 export default function Home() {
