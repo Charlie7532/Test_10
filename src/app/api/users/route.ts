@@ -1,77 +1,64 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server"
 
-const filePath = path.join(process.cwd(), "src", "DB", "users.json");
+// Simulated in-memory database (Replace with a real DB later)
+let users: any[] = []
 
-/**
- * GET - Fetch users
- * - If ?users=X is provided, return X random users.
- * - If ?id=X is provided, return the user with that ID.
- */
-export async function GET(request: NextRequest) {
+// Function to fetch users from randomuser.me API
+const fetchRandomUsers = async (count: number) => {
     try {
-        const { searchParams } = new URL(request.url);
-        const usersParam = searchParams.get("users");
-        const idParam = searchParams.get("id");
-
-        // Read users file
-        const fileData = await fs.readFile(filePath, "utf-8");
-        const usersData = JSON.parse(fileData);
-
-        if (!Array.isArray(usersData) || usersData.length === 0) {
-            return NextResponse.json({ error: "No users available." }, { status: 404 });
+        const response = await fetch(`https://randomuser.me/api/?results=${count}`)
+        if (!response.ok) {
+            throw new Error("Failed to fetch users")
         }
-
-        // Fetch by ID
-        if (idParam) {
-            const user = usersData.find((u: any) => u.id.toString() === idParam);
-            if (!user) {
-                return NextResponse.json({ error: "User not found." }, { status: 404 });
-            }
-            return NextResponse.json(user, { status: 200 });
-        }
-
-        // Fetch a random number of users
-        const usersCount = usersParam ? parseInt(usersParam, 10) : 1;
-        if (isNaN(usersCount) || usersCount < 1) {
-            return NextResponse.json({ error: 'Invalid "users" parameter.' }, { status: 400 });
-        }
-
-        const shuffledUsers = usersData.sort(() => 0.5 - Math.random()).slice(0, usersCount);
-        return NextResponse.json(shuffledUsers, { status: 200 });
-
+        const data = await response.json()
+        return data.results
     } catch (error) {
-        console.error("Error processing GET request:", error);
-        return NextResponse.json({ error: "Failed to process request", details: (error as Error).message }, { status: 500 });
+        console.error("Error fetching users:", error)
+        return []
     }
 }
 
-/**
- * POST - Add a new user to users.json
- */
-export async function POST(request: NextRequest) {
+// POST: Populate the database with random users
+export async function POST(req: NextRequest) {
     try {
-        const body = await request.json();
-        if (!body || !body.name || !body.email) {
-            return NextResponse.json({ error: "Missing required fields (name, email)." }, { status: 400 });
+        const body = await req.json()
+        const count = body.users || 1 // Default to 1 user if no count provided
+
+        if (typeof count !== "number" || count <= 0) {
+            return NextResponse.json({ error: "Invalid number of users" }, { status: 400 })
         }
 
-        // Read existing users
-        const fileData = await fs.readFile(filePath, "utf-8");
-        const usersData = JSON.parse(fileData);
+        const newUsers = await fetchRandomUsers(count)
+        users.push(...newUsers) // Store in memory (Replace with DB insert)
 
-        // Generate new ID
-        const newUser = { id: usersData.length + 1, ...body };
-        usersData.push(newUser);
-
-        // Save the updated users list
-        await fs.writeFile(filePath, JSON.stringify(usersData, null, 2));
-
-        return NextResponse.json(newUser, { status: 201 });
-
+        return NextResponse.json({
+            message: `${count} users added successfully`,
+            users: newUsers,
+        }, { status: 201 })
     } catch (error) {
-        console.error("Error processing POST request:", error);
-        return NextResponse.json({ error: "Failed to add user", details: (error as Error).message }, { status: 500 });
+        return NextResponse.json({ error: "Invalid request" }, { status: 500 })
     }
+}
+
+// GET: Fetch users (by email or all)
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url)
+    const email = searchParams.get("email")
+    const random = searchParams.get("random")
+
+    if (email) {
+        // Find user by email
+        const user = users.find((u) => u.email === email)
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 })
+        }
+        return NextResponse.json({ results: [user] })
+    } else if (random) {
+        // Return a random subset of users
+        const amount = parseInt(random, 10) || 1
+        const shuffled = [...users].sort(() => 0.5 - Math.random())
+        return NextResponse.json({ results: shuffled.slice(0, amount) })
+    }
+
+    return NextResponse.json({ results: users }) // Return all users if no params
 }

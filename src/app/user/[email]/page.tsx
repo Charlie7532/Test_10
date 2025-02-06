@@ -45,7 +45,7 @@ export default function UserPage() {
         const fetchUser = async () => {
             try {
                 setIsLoading(true)
-                const response = await fetch(`https://randomuser.me/api/?email=${email}`) // Corrected URL
+                const response = await fetch(`/api/users?email=${email}`)
                 if (!response.ok) {
                     throw new Error("Failed to fetch user")
                 }
