@@ -39,4 +39,3 @@ async function dbConnect() {
 
 export default dbConnect
 
-"jcuartas@calerik.com"
