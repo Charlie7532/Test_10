@@ -5,6 +5,7 @@ import { Search } from "lucide-react"
 
 import UserCard from "@/components/UserCard"
 import { filterUsers } from "@/utils/search"
+import ApiButton from "@/components/ApiButton"
 
 interface User {
   name: {
@@ -67,6 +68,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <ApiButton />
       <div className="mb-8">
         <div className="relative">
           <input
