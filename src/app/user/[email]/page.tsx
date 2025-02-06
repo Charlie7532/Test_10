@@ -34,7 +34,9 @@ interface User {
 }
 
 export default function UserPage() {
-    const { email } = useParams()
+    const params = useParams()
+    const email = params.email as string // Ensure email is treated as a string
+
     const [user, setUser] = useState<User | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -43,12 +45,17 @@ export default function UserPage() {
         const fetchUser = async () => {
             try {
                 setIsLoading(true)
-                const response = await fetch(`/api/user/${email}`)
+                const response = await fetch(`https://randomuser.me/api/?email=${email}`) // Corrected URL
                 if (!response.ok) {
                     throw new Error("Failed to fetch user")
                 }
                 const data = await response.json()
-                setUser(data)
+
+                if (!data.results || data.results.length === 0) {
+                    throw new Error("User not found")
+                }
+
+                setUser(data.results[0]) // Extract the user object
             } catch (err) {
                 setError(err instanceof Error ? err.message : "An error occurred")
             } finally {
@@ -105,4 +112,3 @@ export default function UserPage() {
         </div>
     )
 }
-
