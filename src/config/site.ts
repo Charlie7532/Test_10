@@ -6,8 +6,8 @@ import { MenuItem } from "@/types";
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "ENNTRA",
-  description: "The easiest way to buy and sell concert tickets securely. Find great deals, sell effortlessly, and never miss your favorite events! ",
+  name: "Celerik Test",
+  description: "Celerik Test",
   navItems: [
     { label: "Home", href: "/", },
     { label: "Pricing", href: "/pricing", },
