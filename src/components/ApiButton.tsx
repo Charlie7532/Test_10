@@ -3,14 +3,20 @@
 import { useState, useCallback, useEffect } from "react"
 import { Button } from "@heroui/react"
 
-export default function ApiButton() {
+interface ApiButtonProps {
+    onClick?: () => void // Optional function to trigger after API call
+}
+
+export default function ApiButton({ onClick }: ApiButtonProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [message, setMessage] = useState("")
     const [apiUrl, setApiUrl] = useState("")
 
     useEffect(() => {
-        // Set the API URL once the component mounts on the client side
-        setApiUrl(`${window.location.origin}/api/users`)
+        // Ensure this only runs on the client side
+        if (typeof window !== "undefined") {
+            setApiUrl(`${window.location.origin}/api/users`)
+        }
     }, [])
 
     const handleClick = useCallback(async () => {
@@ -37,14 +43,19 @@ export default function ApiButton() {
 
             const data = await response.json()
             setMessage("API call successful!")
-            console.log(data) // Log the response data
+            console.log("API Response:", data)
+
+            // Call the provided onClick function if it exists
+            if (onClick) {
+                onClick()
+            }
         } catch (error) {
             setMessage("Error calling API")
-            console.error("There was a problem with the API call:", error)
+            console.error("API call error:", error)
         } finally {
             setIsLoading(false)
         }
-    }, [apiUrl])
+    }, [apiUrl, onClick])
 
     return (
         <div className="flex flex-col items-center gap-4">
@@ -56,4 +67,3 @@ export default function ApiButton() {
         </div>
     )
 }
-
