@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import UserCard from "@/components/UserCard"
 import { filterUsers } from "@/utils/search"
+import { MagnetIcon } from "lucide-react"
+import SearchIcon from '@mui/icons-material/Search';
 
 interface User {
   name: {
@@ -26,9 +28,14 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetch("http://localhost:3000/api/users?users=6")
+      const response = await fetch("https://randomuser.me/api?results=6")
       const data = await response.json()
-      setUsers(data)
+      setUsers(data.results.map((user: any) => ({
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        location: user.location
+      })))
     }
 
     fetchUsers()
@@ -47,7 +54,7 @@ export default function Home() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
