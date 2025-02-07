@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
-
-let users: any[] = []
+import { type NextRequest, NextResponse } from "next/server"
+import clientPromise from "@/lib/mongodb"
 
 const fetchRandomUsers = async (count: number) => {
     try {
@@ -26,13 +25,25 @@ export async function POST(req: NextRequest) {
         }
 
         const newUsers = await fetchRandomUsers(count)
-        users.push(...newUsers)
 
-        return NextResponse.json({
-            message: `${count} users added successfully`,
-            users: newUsers,
-        }, { status: 201 })
+        // Connect to MongoDB
+        const client = await clientPromise
+        const db = client.db("userDatabase")
+        const usersCollection = db.collection("users")
+
+        // Insert new users into MongoDB
+        const result = await usersCollection.insertMany(newUsers)
+
+        return NextResponse.json(
+            {
+                message: `${result.insertedCount} users added successfully`,
+                users: newUsers,
+            },
+            { status: 201 },
+        )
     } catch (error) {
-        return NextResponse.json({ error: "Invalid request" }, { status: 500 })
+        console.error("Error:", error)
+        return NextResponse.json({ error: "An error occurred while processing the request" }, { status: 500 })
     }
 }
+

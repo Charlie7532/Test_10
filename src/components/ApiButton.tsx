@@ -14,7 +14,7 @@ export default function ApiButton({ onClick }: ApiButtonProps) {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
-            setApiUrl(`${window.location.origin}/api/users`)
+            setApiUrl(`${window.location.origin}/api/users/load`)
         }
     }, [])
 

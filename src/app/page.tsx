@@ -35,7 +35,7 @@ export default function Home() {
   const fetchUsers = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch("/api/users?random=20")
+      const response = await fetch("/api/users/search?random=20")
       if (!response.ok) {
         throw new Error("Failed to fetch users")
       }

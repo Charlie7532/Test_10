@@ -46,7 +46,7 @@ export default function UserProfile() {
         const fetchUser = async () => {
             try {
                 setIsLoading(true)
-                const response = await fetch(`/api/users?email=${email}`)
+                const response = await fetch(`/api/users/search?email=${email}`)
                 if (!response.ok) {
                     throw new Error("Failed to fetch user")
                 }
